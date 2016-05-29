@@ -100,7 +100,7 @@ function doSubmit(){
 					<table width="100%">
 						<tr>
 							<th>
-								用户名
+								用户名 :
 							</th>
 							<td>
 								<input type="text" name="username" value="${username }"/>
@@ -108,7 +108,7 @@ function doSubmit(){
 						</tr>
 						<tr>
 							<th>
-								密码
+								密码 :
 							</th>
 							<td>
 								<input type="password" name="password" />
