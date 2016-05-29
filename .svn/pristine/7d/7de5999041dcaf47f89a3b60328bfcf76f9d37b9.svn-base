@@ -1,0 +1,9 @@
+package com.atguigu.ssm.crm.mappers;
+
+import com.atguigu.ssm.crm.entity.Customer;
+
+public interface CustomerMapper {
+
+	void save(Customer customer);
+
+}

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.CustomerMapper">
+	<sql id="queryCondition">
+		<where>
+			1 = 1
+			<if test="name != null">
+				AND c.name LIKE #{name}
+			</if>
+			<if test="region != null">
+				AND region = #{region}
+			</if>
+			<if test="managername != null">
+				AND t.name Like #{managername}
+			</if>
+			<if test="level != null">
+				AND customer_level = #{level}
+			</if>
+			<if test="state != null">
+				AND state = #{state}
+			</if>
+		</where>
+	</sql>
+	<insert id="save">
+		<selectKey keyProperty="id" order="BEFORE" resultType="long">
+			select crm_seq.nextVal from dual
+		</selectKey>
+		Insert into customers(id, name, state, no) values(#{id}, #{name},
+		#{state}, #{no})
+	</insert>
+	<select id="getTotalElements" resultType="long">
+		select count(*) from
+		(select c.id
+		from customers c
+		left outer join
+		contacts t
+		on c.manager_id = t.id
+		<include refid="queryCondition"></include>
+		)
+	</select>
+	<select id="getContent" resultType="com.atguigu.ssm.crm.entity.Customer">
+		select * from
+		(select rownum rn, c.id, no, c.name, region,
+		customer_level as "level", state, t.name as "manager.name"
+		from
+		customers c
+		left outer join contacts t
+		on c.manager_id = t.id
+		<include refid="queryCondition"></include>
+		)
+		<![CDATA[
+			where rn >= #{firstIndex} and rn < #{endIndex}
+		]]>
+	</select>
+	<select id="getDictList" resultType="com.atguigu.ssm.crm.entity.Dict">
+		select id, item from dicts
+		where type = '地区'
+	</select>
+	<select id="getLevels" resultType="com.atguigu.ssm.crm.entity.Dict">
+		select id, item from dicts
+		where type = '客户等级'
+	</select>
+	<select id="getManagerList" resultType="com.atguigu.ssm.crm.entity.Contact">
+		select id, name from
+		contacts
+	</select>
+	<select id="getStatisfieList" resultType="com.atguigu.ssm.crm.entity.Dict">
+		select id, item from
+		dicts where type = '满意度'
+	</select>
+	<select id="getCretditList" resultType="com.atguigu.ssm.crm.entity.Dict">
+		select id, item from
+		dicts where type = '信用度'
+	</select>
+	<insert id="saveCreate">
+		INSERT into customers (id ,address, bank,
+		bank_account, bankroll, chief, credit, fax, licence_no, local_tax_no,
+		name, national_tax_no, no, region, satify, state, tel, turnover,
+		websit, zip, manager_id, customer_level)
+		values(crm_seq.nextVal, #{address},
+		#{bank},#{bankAccount},#{chief},#{credit},#{fax},#{licenceNo},#{localTaxNo},#{name},#{nationalTaxNo},#{no},#{region},#{satify},#{state},#{tel},#{turnover},#{websit},#{zip},#{manager.id},#{level})
+	</insert>
+	<select id="getCustomerById" resultType="com.atguigu.ssm.crm.entity.Customer">
+		select id ,address,
+		bank, bank_account as "bankAccount", bankroll, chief, credit, fax,
+		licence_no, local_tax_no, name, national_tax_no, no, region, satify,
+		state, tel, turnover, websit, zip, manager_id as "manager.id",
+		customer_level as "level" from customers
+		where id = #{id}
+	</select>
+	<update id="update">
+		UPDATE customers
+		set address = #{address}, bank = #{bank}, bank_account = #{bankAccount},
+		bankroll = #{bankroll}, chief = #{chief}, credit = #{credit}, fax = #{fax}, licence_no = #{licenceNo}, local_tax_no = #{localTaxNo}, name = #{name},
+		national_tax_no = #{nationalTaxNo}, no = #{no}, region = #{region}, satify = #{satify}, state = #{state}, tel = #{tel}, turnover = #{turnover}, websit = #{websit},
+		zip = #{zip}, manager_id = #{manager.id}, customer_level = #{level}
+		where id = #{id}
+	</update>
+	<update id="updateState">
+		update customers
+		set state = #{status}
+		where id = #{id}
+	</update>
+</mapper>

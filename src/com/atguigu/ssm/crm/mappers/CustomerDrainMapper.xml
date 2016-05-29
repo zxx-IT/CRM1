@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.CustomerDrainMapper">
+	<sql id="queryCondition">
+		<where>
+			1 = 1
+			<if test="customername != null">
+				AND c.name Like #{customername}
+			</if>
+			<if test="customermanagername != null">
+				AND t.name LIKE #{customermanagername}
+			</if>
+		</where>
+	</sql>
+	<select id="getTotalElements" resultType="long">
+		select count(*) from
+		(select d.id
+			from customer_drains d
+			left outer join customers c
+			on d.customer_id = c.id
+			left outer join contacts t
+			on c.manager_id = t.id
+			<include refid="queryCondition"/>
+		)
+		
+	</select>
+	<select id="getContent" resultType="com.atguigu.ssm.crm.entity.CustomerDrain">
+		select *　from
+		(
+			select rownum rn, d.id, last_order_date, drain_date, reason, status, c.name as "customer.name", t.name as "customer.manager.name"
+			from customer_drains d
+			left outer join customers c
+			on d.customer_id = c.id
+			left outer join contacts t
+			on c.manager_id = t.id
+			<include refid="queryCondition"/>
+			order by d.id
+		)
+		<![CDATA[
+			where rn >= #{firstIndex} and rn < #{endIndex}
+		]]>
+	</select>
+	<select id="getCustomerDrainById" resultType="com.atguigu.ssm.crm.entity.CustomerDrain">
+		select d.id, last_order_date, d.delay, status,c.id as "customer.id", c.name as "customer.name", t.name as "customer.manager.name"
+			from customer_drains d
+			left outer join customers c
+			on d.customer_id = c.id
+			left outer join contacts t
+			on c.manager_id = t.id
+		where d.id = #{id}
+	</select>
+	<update id="update">
+		update customer_drains
+		set delay = #{delay}
+		where id = #{id}
+	</update>
+	<update id="updateStatus">
+		update customer_drains
+		set status = #{status},
+		drain_date = #{date},
+		reason = #{reason}
+		where id = #{id}
+	</update>
+</mapper>

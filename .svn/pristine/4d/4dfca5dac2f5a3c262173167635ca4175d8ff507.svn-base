@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.SalesChanceMapper">
+	<sql id="queryCondition">
+		<where>
+			1 = 1
+			<if test="custName != null">
+				AND cust_name LIKE #{custName}
+			</if>
+			<if test="title != null">
+				AND title LIKE #{title}
+			</if>
+			<if test="contact != null">
+				AND contact LIKE #{contact}
+			</if>
+			<if test="userId != null">
+				AND designee_id = #{userId}
+			</if>
+		</where>
+	</sql>
+	<select id="getContent" resultType="com.atguigu.ssm.crm.entity.SalesChance">
+		<![CDATA[
+			select * from (select rownum
+			rn, id, cust_name, title, contact, contact_tel, create_date from
+			sales_chances order by id)
+			where rn >= #{firstIndex} and rn <
+			#{endIndex}
+		]]>
+	</select>
+	<select id="getTotalElements" resultType="long">
+		select count(id) from
+		sales_chances
+	</select>
+	<insert id="save">
+		INSERT INTO sales_chances(id, source, cust_name,
+		rate, title, contact, contact_tel, description, created_user_id,
+		create_date, status)
+		VALUES(crm_seq.nextval, #{source}, #{custName},
+		#{rate}, #{title}, #{contact}, #{contactTel}, #{description},
+		#{createBy.id}, #{createDate}, 1)
+	</insert>
+	<select id="get" resultType="com.atguigu.ssm.crm.entity.SalesChance">
+		select * from sales_chances where id
+		= #{id}
+	</select>
+	<update id="update">
+		UPDATE sales_chances SET source = #{source},
+		cust_name = #{custName}, rate = #{rate}, title = #{title}, contact =
+		#{contact}, contact_tel = #{contactTel}, description = #{description}
+		WHERE id = #{id}
+	</update>
+	<delete id="delete">
+		delete from sales_chances where id = #{id}
+	</delete>
+	<select id="getContent2" resultType="com.atguigu.ssm.crm.entity.SalesChance">
+
+		select * from (select rownum
+		rn, id, cust_name, title, contact,
+		contact_tel, create_date from
+		sales_chances
+		<include refid="queryCondition" />
+		order by id)
+		<![CDATA[	
+			where rn >= #{firstIndex} and rn <
+			#{endIndex}
+		]]>
+	</select>
+	<select id="getTotalElements2" resultType="long">
+		select count(id) from sales_chances
+		<include refid="queryCondition" />
+	</select>
+	<select id="dispatch">
+		UPDATE sales_chances
+		set status = 2,
+		designee_date =
+		#{designeeDate},
+		designee_id = #{designee.id}
+		where id = #{id}
+	</select>
+	<select id="getPlanContent" resultType="com.atguigu.ssm.crm.entity.SalesChance">
+		select * from (select rownum
+		rn, id, cust_name, title, contact,
+		contact_tel, create_date, status, designee_id from
+		sales_chances
+		<include refid="queryCondition" />
+		<![CDATA[
+			and  status <> 1 ]]>
+		order by id)
+		<![CDATA[	
+			where rn >= #{firstIndex} and rn <
+			#{endIndex}
+		]]>
+	</select>
+	<select id="getTotalChances" resultType="long">
+		<![CDATA[
+			select count(id) from
+			sales_chances
+			where status <> 1 and designee_id = #{userId}
+		]]>
+	</select>
+	
+	
+	<select id="getSalesPlans" resultType="com.atguigu.ssm.crm.entity.SalesPlan">
+		select id, plan_date as
+		"date", plan_result as "result", todo from sales_plan
+		where chance_id =
+		#{id}
+	</select>
+
+	<resultMap type="com.atguigu.ssm.crm.entity.User" id="userMap">
+		<result column="u_name" property="name" />
+	</resultMap>
+	<resultMap type="com.atguigu.ssm.crm.entity.SalesChance" id="chanceMap">
+		<id column="s_id" property="id" />
+		<result column="source" property="source" />
+		<result column="cust_name" property="custName" />
+		<result column="rate" property="rate" />
+		<result column="title" property="title" />
+		<result column="contact" property="contact" />
+		<result column="contact_tel" property="contactTel" />
+		<result column="description" property="description" />
+		<result column="create_date" property="createDate"/>
+		<association property="createBy" resultMap="userMap"></association>
+		<collection property="salesPlans" select="getSalesPlans"
+			column="s_id"></collection>
+	</resultMap>
+	<select id="getPlanChance" resultMap="chanceMap">
+		select s.id as "s_id",
+		s.source, s.cust_name,
+		s.rate, s.title, s.contact, s.contact_tel,
+		s.description, u.name as "u_name",
+		s.create_date, s.status, p.id
+		,p.plan_date, p.plan_result, p.todo from sales_chances s
+		left outer
+		join users u
+		on s.created_user_id = u.id
+		left outer join sales_plan p
+		on
+		p.chance_id = s.id
+		where s.id = #{id}
+	</select>
+	<update id="updateStatus">
+		update sales_chances 
+		set status = #{status}
+		where id = #{id}
+	</update>
+</mapper>

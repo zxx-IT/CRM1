@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<bean id="myRealm" class="com.atguigu.ssm.crm.realm.CrmRealm">
+		<property name="credentialsMatcher">
+			<bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+				<property name="hashAlgorithmName" value="MD5" />
+				<property name="hashIterations" value="1024" />
+			</bean>
+		</property>
+	</bean>
+	<!-- 核心部分 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="cacheManager" ref="cacheManager" />
+		<property name="realm" ref="myRealm" />
+	</bean>
+	<!-- 配置缓存管理器 -->
+	<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:ehcache.xml" />
+	</bean>
+	<!-- 执行init和destroy方法 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+	<!-- 依赖 lifecycleBeanPostProcessor -->
+	<!-- 不注掉会报错， ^_^ -->
+	<!-- <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" 
+		depends-on="lifecycleBeanPostProcessor"/> 
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor"> 
+		<property name="securityManager" ref="securityManager"/> 
+	</bean> -->
+
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+    	<!-- 配置 securityManager 属性. -->
+        <property name="securityManager" ref="securityManager"/>
+        <!-- 配置登陆页面. 若某一个资源需要被认证(登陆)后才可以访问, 则 Shiro 会自动的重定向到 loginUrl 指向的页面 -->
+        <property name="loginUrl" value="/index.jsp"/>
+        <!-- 配置没有权限访问某一个资源时的响应页面.  -->
+        <property name="unauthorizedUrl" value="/unauthorized"/>
+        
+        <!-- 配置受保护的资源 -->
+        <property name="filterChainDefinitions">
+            <value>
+            	<!-- 配置登出 -->
+				/logout = logout
+				<!-- static 下的任何资源都可以任意访问 -->
+				/static/** = anon
+				/user/login = anon
+				/index = anon
+				/error/** = anon
+				<!-- 具体配置模块对应的权限. ** 表示目录及子目录下的所有资源 -->
+				/role/** = roles[role]
+				/user/** = roles[user]
+				/chance/** = roles[chance]
+				/plan/** = roles[plan]
+				/dict/** = roles[dict]
+				/product/** = roles[product]
+				/storage/** = roles[storage]
+				/customer/** = roles[customer]
+				/contact/** = roles[customer]
+				
+				<!-- 其他的资源只有登陆后才可以访问 -->
+				/** = authc
+				
+				<!-- 注意: URL 权限采取第一次匹配优先的方式 -->
+            </value>
+        </property>
+    </bean>
+</beans>

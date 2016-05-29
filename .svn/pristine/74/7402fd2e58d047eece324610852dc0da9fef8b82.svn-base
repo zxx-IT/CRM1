@@ -1,0 +1,30 @@
+package com.atguigu.ssm.crm.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.atguigu.ssm.crm.entity.User;
+import com.atguigu.ssm.crm.mappers.UserMapper;
+
+@Service
+@Transactional
+public class UserService {
+	@Autowired
+	private UserMapper userMapper;
+	
+	public User login(String name, String password){
+		
+		User user = userMapper.getByName(name);
+		if (user != null && password.equals(user.getPassword()) && user.getEnabled() == 1) {
+			return user;
+		}
+		
+		return null;
+	}
+	public List<User> getUserList(){
+		return userMapper.getUserList();
+	}
+}

@@ -1,0 +1,54 @@
+package com.atguigu.ssm.crm.realm;
+
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.subject.PrincipalCollection;
+
+public class CrmRealm extends AuthorizingRealm{
+
+	@Override
+	protected AuthorizationInfo doGetAuthorizationInfo(
+			PrincipalCollection principals) {
+		/*Object principal = principals.getPrimaryPrincipal();
+		
+		System.out.println("principal = " + principal);
+		
+		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+		info.addRole("user");
+		if ("admin".equals(principal)) {
+			info.addRole("admin");
+		}*/
+		return null;
+	}
+
+	@Override
+	protected AuthenticationInfo doGetAuthenticationInfo(
+			AuthenticationToken token) throws AuthenticationException {
+		/*UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken)token;
+		
+		String username = usernamePasswordToken.getUsername();
+		
+		System.out.println("利用  " + username + "来获取数据库中对应的记录");
+		
+		String password = null;
+		
+		if ("admin".equals(username)) {
+			password = "038bdaf98f2037b31f1e75b5b4c9b26e";
+		}else if ("user".equals(username)) {
+			password = "098d2c478e9c11555ce2823231e02ec1";
+		}
+		Object principal = username;
+		
+		String hashedCredentials = password;
+		ByteSource credentialsSalt = ByteSource.Util.bytes(username);
+		String realmName = getName();
+		SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(principal, credentials, realmName);
+		SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(principal, hashedCredentials, credentialsSalt, realmName);
+		return info;*/
+		return null;
+	}
+}
+

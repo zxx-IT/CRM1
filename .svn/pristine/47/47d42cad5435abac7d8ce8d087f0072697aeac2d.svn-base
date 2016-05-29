@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.ContactMapper">
+	<insert id="save">
+		Insert into contacts(id, name, tel, customer_id) values(crm_seq.nextVal, #{name}, #{tel}, #{customer.id})
+	</insert>
+</mapper>

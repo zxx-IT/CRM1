@@ -1,0 +1,12 @@
+package com.atguigu.ssm.crm.mappers;
+
+import java.util.List;
+
+import com.atguigu.ssm.crm.entity.User;
+
+public interface UserMapper {
+	
+	User getByName(String name);
+
+	List<User> getUserList();
+}

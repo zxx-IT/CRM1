@@ -1,0 +1,14 @@
+package com.atguigu.ssm.crm.mappers;
+
+import java.util.List;
+import java.util.Map;
+
+import com.atguigu.ssm.crm.entity.Customer;
+
+public interface ReportMapper {
+
+	long getTotalElements();
+
+	List<Customer> getContent(Map<String, Object> map);
+
+}

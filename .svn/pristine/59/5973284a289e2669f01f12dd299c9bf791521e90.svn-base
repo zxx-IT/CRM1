@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.RoleMapper">
+	<select id="getAllRoles" resultType="com.atguigu.ssm.crm.entity.Role">
+		select id, name from roles
+	</select>
+	<select id="getTotalElements" resultType="long">
+		select count(id) from roles
+	</select>
+	<select id="getContent" resultType="com.atguigu.ssm.crm.entity.Role">
+		select * from
+		(select rownum rn, id, description, enabled, name
+		from roles order by id)
+		<![CDATA[
+			WHERE rn >= #{firstIndex} and rn < #{endIndex}
+		]]>
+	</select>
+	<select id="getRoleById" resultType="com.atguigu.ssm.crm.entity.Role">
+		select * from roles
+		where id = #{id}
+	</select>
+	<insert id="save">
+		insert into roles (id, description, enabled, name ) values (crm_seq.nextVal, #{description}, #{enabled}, #{name})
+	</insert>
+	<update id="update">
+		update roles
+		set description = #{description},
+			enabled = #{enabled},
+			name = #{name}
+	</update>
+	<delete id="delete">
+		delete from roles where id = #{id}
+	</delete>
+	<insert id="saveRoleAuth">
+		insert into role_authority (role_id, authority_id)
+		values (#{roleId}, #{authId})
+	</insert>
+	<delete id="deleteRoleAuth">
+		delete from role_authority
+		where role_id = #{id}
+	</delete>
+	<select id="getCurrentAuth" resultType="int">
+		select authority_id from role_authority
+		where role_id = #{id}
+	</select>
+</mapper>

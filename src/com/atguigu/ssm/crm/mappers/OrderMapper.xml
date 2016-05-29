@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.OrderMapper">
+	<select id="getTotalElements" resultType="long">
+		select count(id) from orders
+		where customer_id = #{customerid}
+	</select>
+	<select id="getContent" resultType="com.atguigu.ssm.crm.entity.Order">
+		<![CDATA[
+			select * from
+			(select rownum as rn, id, address, order_date, no, status, customer_id from orders where customer_id = #{customerid} order by id)
+			where rn >= #{firstIndex} and rn < #{endIndex}
+		]]>
+		
+	</select>
+	<!-- <select id="getProducts" resultType="">
+		select * from products 
+		where id = 
+	</select> -->
+	<resultMap type="com.atguigu.ssm.crm.entity.Product" id="productMap">
+		<id column="p_id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="unit" property="unit"/>
+	</resultMap>
+	<resultMap type="com.atguigu.ssm.crm.entity.OrderItem" id="orderItemMap">
+		<id column="i_id" property="id"/>
+		<result column="item_count" property="count"/>
+		<result column="money" property="money"/>
+		<association property="product" resultMap="productMap" column="p_id"></association>
+	</resultMap>
+	<resultMap type="com.atguigu.ssm.crm.entity.Order" id="orderMap">
+		<id column="o_id" property="id"/>
+		<result column="address" property="address"/>
+		<result column="order_date" property="date"/>
+		<result column="status" property="status"/>
+		<collection property="items" resultMap="orderItemMap" column="i_id"></collection>
+	</resultMap>
+	<select id="getOrderDetails" resultMap="orderMap">
+		select o.id as "o_id", address, order_date, status, i.id as "i_id", item_count, money, p.id as "p_id", p.name, p.unit
+		from orders o
+		left outer join order_items i
+		on o.id = i.order_id
+		left outer join products p
+		on i.product_id = p.id
+		where o.id = #{orderId}
+	</select>
+	<select id="getList" resultType="com.atguigu.ssm.crm.entity.Order">
+		select * from orders
+		where id = #{orderId}
+	</select>
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.ContactMapper">
+	<insert id="save">
+		Insert into contacts(id, name, tel, customer_id)
+		values(crm_seq.nextVal, #{name}, #{tel}, #{customer.id})
+	</insert>
+	<select id="getTotalElements" resultType="long">
+		select count(id) from
+		contacts
+		where customer_id = #{customerid}
+	</select>
+	<select id="getContent" resultType="com.atguigu.ssm.crm.entity.Contact">
+		<![CDATA[
+			select * from
+			(select rownum rn, id, memo, mobile, name, position, sex, tel, customer_id
+			from contacts
+			where customer_id = #{customerid}
+			order by id)
+			where rn >= #{firstIndex} and rn < #{endIndex}
+		]]>
+	</select>
+	<insert id="saveCreate">
+		insert into contacts(id, memo, mobile, name,
+		position, sex, tel, customer_id) values(crm_seq.nextVal, #{memo},
+		#{mobile}, #{name}, #{position}, #{sex}, #{tel}, #{customer.id})
+	</insert>
+	<select id="getContactById" resultType="com.atguigu.ssm.crm.entity.Contact">
+		select * from contacts
+		where id = #{id}
+	</select>
+	<update id="update">
+		update contacts
+		set memo = #{memo}, mobile=#{mobile}, name=#{name}, position=#{position},
+		sex=#{sex}, tel=#{tel}
+		where id = #{id}
+	</update>
+	<delete id="delete">
+		delete from contacts where id = #{id}
+	</delete>
+</mapper>

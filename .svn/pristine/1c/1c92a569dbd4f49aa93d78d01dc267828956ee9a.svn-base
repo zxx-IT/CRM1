@@ -1,0 +1,38 @@
+package com.atguigu.ssm.crm.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.atguigu.ssm.crm.entity.Customer;
+import com.atguigu.ssm.crm.entity.Role;
+import com.atguigu.ssm.crm.mappers.ReportMapper;
+import com.atguigu.ssm.crm.model.Page;
+
+@Service
+public class ReportService {
+	@Autowired
+	private ReportMapper reportMapper;
+
+	public Page<Customer> getPage(int pageNo) {
+		Page<Customer> page = new Page<>();
+		page.setPageNo(pageNo);
+		
+		int totalElements = (int)reportMapper.getTotalElements();
+		
+		page.setTotalElements(totalElements);
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		int firstIndex = ((pageNo - 1) * page.getPageSize()) + 1;
+		int endIndex = firstIndex + page.getPageSize();
+		
+		map.put("firstIndex", firstIndex);
+		map.put("endIndex", endIndex);
+		List<Customer> content = reportMapper.getContent(map);
+		page.setContent(content);
+		return page;
+	}
+}

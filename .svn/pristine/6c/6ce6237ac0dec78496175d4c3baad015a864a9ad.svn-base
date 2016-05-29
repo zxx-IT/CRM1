@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.CustomerMapper">
+	<insert id="save">
+		<selectKey keyProperty="id" order="BEFORE" resultType="int">
+			select crm_seq.nextVal from dual
+		</selectKey>
+		Insert into customers(id, name, state, no) values(#{id}, #{name}, #{state}, #{no})
+	</insert>
+</mapper>

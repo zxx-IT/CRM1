@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.ReportMapper">
+	<select id="getContent" resultType="com.atguigu.ssm.crm.entity.Customer">
+		select * from
+		(
+		select rownum rn, c.id, name, oreder_money
+		from customers c
+		left outer join orders o
+		on c.id = o.customer_id
+		left outer join order_items
+
+		order by id
+		)
+		<![CDATA[
+			where rn >= #{firstIndex} and rn< #{endIndex}
+		]]>
+	</select>
+	<select id="getTotalElements" resultType="long">
+		select count(id) from
+		customers
+	</select>
+
+	<!-- Map -->
+	<!-- <select id="getCustomerConstributeContent" resultType="java.util.Map">
+		SELECT *
+		FROM(
+		SELECT rownum rn, t.*
+		FROM(
+		SELECT c.name AS "customerName", sum(oi.money) as "totalMoney"
+		FROM customers c
+		INNER JOIN orders o
+		ON c.id = o.customer_id
+		LEFT OUTER JOIN order_items oi
+		ON o.id = oi.order_id
+		<where>
+			<if test="custName != null and custName != ''">
+				c.name LIKE #{custName}
+			</if>
+			<if test="minOrderDate != null and minOrderDate != ''">
+				AND o.order_date >= #{minOrderDate}
+			</if>
+			<if test="maxOrderDate != null and maxOrderDate != ''">
+			  		<![CDATA[
+			  		AND o.order_date <= #{maxOrderDate}
+			  		]]>
+			</if>
+		</where>
+		GROUP BY c.name
+		) t
+		)
+		<![CDATA[
+		WHERE rn >= #{firstIndex} AND rn < #{endIndex}
+		]]>
+	</select>
+
+	<select id="getCustomerConstributeCount" resultType="long">
+		SELECT count(*)
+		FROM(
+		SELECT c.name
+		FROM customers c
+		INNER JOIN orders o
+		ON c.id = o.customer_id
+		LEFT OUTER JOIN order_items oi
+		ON o.id = oi.order_id
+		<where>
+			<if test="custName != null and custName != ''">
+				c.name LIKE #{custName}
+			</if>
+			<if test="minOrderDate != null and minOrderDate != ''">
+				AND o.order_date >= #{minOrderDate}
+			</if>
+			<if test="maxOrderDate != null and maxOrderDate != ''">
+		  		<![CDATA[
+		  		AND o.order_date <= #{maxOrderDate}
+		  		]]>
+			</if>
+		</where>
+		GROUP BY c.name
+		)
+	</select> -->
+
+</mapper>

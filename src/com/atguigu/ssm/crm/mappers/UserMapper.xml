@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.UserMapper">
+	<sql id="queryConditon">
+		WHERE 1 = 1
+		<if test="name != null">
+			AND name LIKE #{name}
+		</if>
+		<if test="enabled != null">
+			AND enabled = #{enabled}
+		</if>
+	</sql>
+	<select id="getByName" resultType="com.atguigu.ssm.crm.entity.User">
+		SELECT u.id, u.name,
+		u.password, u.enabled, u.salt, u.role_id as "role.id",
+		r.name as
+		"role.name"
+		FROM users u
+		left outer join roles r
+		on u.role_id = r.id
+		WHERE u.name= #{name}
+	</select>
+	<select id="getUserList" resultType="com.atguigu.ssm.crm.entity.User">
+		SELECT id, name
+		from users
+	</select>
+	<select id="getTotalElements" resultType="long">
+		select count(id)
+		from users
+		<include refid="queryConditon"/>
+	</select>
+	<select id="getContent" resultType="com.atguigu.ssm.crm.entity.User">
+		select *
+		from (
+			select rownum rn, id, enabled, name, password, role_id, salt 
+			from users
+			<include refid="queryConditon"/>
+			order by id
+		)
+		<![CDATA[
+		where rn >= #{firstIndex} and rn < #{endIndex}
+		]]>
+	</select>
+	<select id="getUserById" resultType="com.atguigu.ssm.crm.entity.User">
+		select * from users
+		where id = #{id}
+	</select>
+	<update id="update">
+		update users
+		set enabled = #{enabled}, name = #{name}, password = #{name}, role_id = #{role.id}
+		where id = #{id}
+	</update>
+	<insert id="save">
+		insert into users (id, enabled, name, password, role_id) values (crm_seq.nextVal, #{enabled}, #{name}, #{password}, #{role.id})
+	</insert>
+	<delete id="delete">
+		delete from users where id = #{id}
+	</delete>
+
+	<!-- <select id="getUserByName" resultType="com.atguigu.ssm.crm.entity.User">
+		select u.id, u.name, password, u.role_id as "role.id", salt, r.name as "role.name" from users u
+		left outer join roles r on
+		u.role_id = r.id
+		where u.name = #{username}
+	</select> -->
+	
+	<resultMap type="com.atguigu.ssm.crm.entity.User" id="userMap">
+		<id column="id" property="id"/>
+		<result column="enabled" property="enabled"/>
+		<result column="name" property="name"/>
+		<result column="password" property="password"/>
+		<result column="salt" property="salt"/>
+		
+		<result column="r_name" property="role.name"/>
+		
+		<collection property="role.authorities" javaType="com.atguigu.ssm.crm.entity.Authority">
+			<id column="a_id" property="id"/>
+			<result column="a_name" property="name"/>
+			<result column="a_display_name" property="displayName"/>
+			<result column="a_url" property="url"/>
+			
+			<result column="p_id" property="parentAuthority.id"/>			
+			<result column="p_display_name" property="parentAuthority.displayName"/>			
+		</collection>
+	</resultMap>
+
+	<select id="getUserByName" resultMap="userMap">
+		SELECT u.id, u.enabled, u.name, password, salt,
+		       r.name as "r_name",
+		       a.id as "a_id", a.name as "a_name", a.display_name as "a_display_name", a.url as "a_url",
+			   p.id as "p_id", p.display_name as "p_display_name"		       
+		FROM users u 
+		LEFT OUTER JOIN roles r 
+		ON u.role_id = r.id 
+		LEFT OUTER JOIN role_authority ra
+		ON r.id = ra.role_id
+		LEFT OUTER JOIN authorities a
+		ON a.id = ra.authority_id
+		LEFT OUTER JOIN authorities p
+		ON a.parent_authority_id = p.id
+		WHERE u.name = #{name}
+	</select>
+	
+</mapper>

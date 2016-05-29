@@ -1,0 +1,90 @@
+package com.atguigu.ssm.crm.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.atguigu.ssm.crm.entity.Customer;
+import com.atguigu.ssm.crm.entity.CustomerDrain;
+import com.atguigu.ssm.crm.mappers.ReportMapper;
+import com.atguigu.ssm.crm.model.Page;
+import com.atguigu.ssm.crm.orm.PropertyFilter;
+
+@Service
+public class ReportService {
+	@Autowired
+	private ReportMapper reportMapper;
+	@Autowired
+	private CustomerDrainService customerDrainService;
+	public Page<Customer> getPage(int pageNo, Map<String, Object> params) {
+		Page<Customer> page = new Page<>();
+		page.setPageNo(pageNo);
+		
+		Map<String, Object> mybatisParams = PropertyFilter.parseRequestParams2MybatisParams(params);
+		int totalElements = (int)reportMapper.getTotalElements(mybatisParams);
+		
+		page.setTotalElements(totalElements);
+		
+		int firstIndex = ((pageNo - 1) * page.getPageSize()) + 1;
+		int endIndex = firstIndex + page.getPageSize();
+		
+		mybatisParams.put("firstIndex", firstIndex);
+		mybatisParams.put("endIndex", endIndex);
+		List<Customer> content = reportMapper.getContent(mybatisParams);
+		page.setContent(content);
+		return page;
+	}
+
+	public Page<Customer> getPageForConsist(int pageNo,
+			Map<String, Object> params) {
+		Page<Customer> page = new Page<>();
+		page.setPageNo(pageNo);
+		
+		Map<String, Object> mybatisParams = PropertyFilter.parseRequestParams2MybatisParams(params);
+		if (params == null || params.size() == 0) {
+			mybatisParams.put("type", "level");
+		}
+	
+		int totalElements = (int)reportMapper.getTotalElementsForConsist(mybatisParams);
+		
+		page.setTotalElements(totalElements);
+		
+		int firstIndex = ((pageNo - 1) * page.getPageSize()) + 1;
+		int endIndex = firstIndex + page.getPageSize();
+		
+		mybatisParams.put("firstIndex", firstIndex);
+		mybatisParams.put("endIndex", endIndex);
+		List<Customer> content = reportMapper.getContentForConsist(mybatisParams);
+		page.setContent(content);
+		return page;
+	}
+
+	public Page<Customer> getPageForService(int pageNo,Map<String, Object> params) {
+			Page<Customer> page = new Page<>();
+			page.setPageNo(pageNo);
+			
+			Map<String, Object> mybatisParams = PropertyFilter.parseRequestParams2MybatisParams(params);
+			
+		
+			int totalElements = (int)reportMapper.getTotalElementsForService(mybatisParams);
+			
+			page.setTotalElements(totalElements);
+			
+			int firstIndex = ((pageNo - 1) * page.getPageSize()) + 1;
+			int endIndex = firstIndex + page.getPageSize();
+			
+			mybatisParams.put("firstIndex", firstIndex);
+			mybatisParams.put("endIndex", endIndex);
+			List<Customer> content = reportMapper.getContentForService(mybatisParams);
+			page.setContent(content);
+			return page;
+	}
+
+	public Page<CustomerDrain> getPageForDrain(int pageNo, Map<String, Object> params) {
+		
+		return customerDrainService.getPage(pageNo, params);
+		
+	}
+}

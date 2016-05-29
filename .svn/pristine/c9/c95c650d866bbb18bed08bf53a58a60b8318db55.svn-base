@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.ssm.crm.mappers.CustomerServiceMapper">
+	<sql id="queryCondition">
+		<where>
+			1 = 1
+			<if test="serviceType != null">
+				AND service_type LIKE #{serviceType}
+			</if>
+			<if test="serviceTitle != null">
+				AND service_title LIKE #{serviceTitle}
+			</if>
+			<if test="customername != null">
+				AND c.name = #{customername}
+			</if>
+			<if test="createDate != null">
+				<![CDATA[
+					AND create_date >= #{createDate}
+				]]>
+			</if>
+			<if test="createDate1 != null">
+				<![CDATA[
+					AND create_date <= #{createDate1}
+				]]>
+			</if>
+		</where>
+	</sql>
+	<insert id="save">
+		insert into customer_services (id, service_request,
+		service_state, service_title, service_type, create_date, customer_id)
+		values (crm_seq.nextVal, #{serviceRequest}, #{serviceState}, #{serviceTitle}, #{serviceType}, #{createDate}, #{customer.id})
+	</insert>
+	<select id="getTotalElements" resultType="long">
+		select count(s.id)
+			from  customer_services s
+			left outer join users u
+			on s.created_id = u.id
+			left outer join customers c
+			on s.customer_id = c.id
+			<include refid="queryCondition"/>
+	</select>
+	<select id="getContent" resultType="com.atguigu.ssm.crm.entity.CustomerService">
+		select * from (
+			select rownum rn, s.id ,service_title, service_type, create_date, u.id as "createBy.id", u.name as "createdby.name", c.id as "customer.id", c.name as "customer.name", r.id as "allotTo.id", r.name as "allotTo.name"
+			from  customer_services s
+			left outer join users u
+			on s.created_id = u.id
+			left outer join customers c
+			on s.customer_id = c.id
+			left outer join users r
+			on s.allot_id = r.id
+			<include refid="queryCondition"/>
+			order by s.id
+		)
+		<![CDATA[
+			where rn >= #{firstIndex} and rn < #{endIndex}
+		]]>
+	</select>
+	<delete id="delete">
+		delete from customer_services
+		where id = #{id}
+	</delete>
+	<update id="allot">
+		UPDATE customer_services
+		set allot_id = #{allotTo.id}
+		where id = #{id}
+	</update>
+	<select id="getCustomerServiceById" resultType="com.atguigu.ssm.crm.entity.CustomerService">
+			select s.id ,service_title, service_type, create_date, service_request, allot_date, service_deal, deal_date,deal_result, satisfy,  u.id as "createBy.id", u.name as "createdby.name", c.id as "customer.id", c.name as "customer.name", r.id as "allotTo.id", r.name as "allotTo.name"
+			from  customer_services s
+			left outer join users u
+			on s.created_id = u.id
+			left outer join customers c
+			on s.customer_id = c.id
+			left outer join users r
+			on s.allot_id = r.id
+			where s.id = #{id}
+	</select>
+	<update id="updateService">
+		update customer_services
+		<if test="serviceDeal != null ">
+			set service_deal = #{serviceDeal}
+		</if>
+		<if test="dealResult != null">
+			set deal_result = #{dealResult},
+		</if>
+		<if test="satisfy != null">
+			 satisfy = #{satisfy }
+		</if>
+		where id = #{id}
+	</update>
+</mapper>
